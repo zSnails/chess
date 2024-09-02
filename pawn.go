@@ -50,7 +50,7 @@ func (p *Pawn) IsValidMove(board *Board, x1 int, y1 int, x2 int, y2 int) bool {
 
 	other := board.PieceAt(x2, y2)
 	if positiveSlope || negativeSlope {
-		return other == nil || p.Side() != other.Side()
+		return other != nil && p.Side() != other.Side()
 	}
 
 	return other == nil && x1 == x2
