@@ -36,16 +36,16 @@ var board = Board{
 }
 
 type game struct {
-	boardSprite *ebiten.Image
-	selectStart image.Point
-	currentCell image.Point
+	boardSprite    *ebiten.Image
+	selectStart    image.Point
+	cellUnderMouse image.Point
 }
 
 // Draw implements ebiten.Game.
 func (g *game) Draw(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
 	screen.DrawImage(g.boardSprite, &opts)
-	vector.DrawFilledRect(screen, float32(g.currentCell.X), float32(g.currentCell.Y), 32, 32, color.RGBA{0x27, 0xcc, 0, 0x30}, true)
+	vector.DrawFilledRect(screen, float32(g.cellUnderMouse.X), float32(g.cellUnderMouse.Y), 32, 32, color.RGBA{A: 0x30}, false)
 	for x, row := range board {
 		for y, piece := range row {
 			if piece != nil {
