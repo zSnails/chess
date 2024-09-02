@@ -107,6 +107,9 @@ func main() {
 		X11ClassName:    "chess",
 		X11InstanceName: "Chess",
 	}); err != nil {
+		if errors.Is(err, io.EOF) {
+			return
+		}
 		panic(err)
 	}
 }
