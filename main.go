@@ -1,10 +1,16 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"image"
 	"image/color"
+	"io"
+	"os"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -25,10 +31,14 @@ var whiteBishop = NewBishop(WHITE)
 var whiteRook = NewRook(WHITE)
 
 type game struct {
-	boardSprite    *ebiten.Image
-	selectStart    image.Point
-	cellUnderMouse image.Point
-	dragged        Piece
+	boardSprite         *ebiten.Image
+	selectStart         image.Point
+	cellUnderMouse      image.Point
+	cellUnderMouseColor color.Color
+	dragged             Piece
+	audioCtx            *audio.Context
+	moveSound           *audio.Player
+	takeSound           *audio.Player
 
 	board Board
 }
@@ -37,7 +47,9 @@ type game struct {
 func (g *game) Draw(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
 	screen.DrawImage(g.boardSprite, &opts)
-	vector.DrawFilledRect(screen, float32(g.cellUnderMouse.X), float32(g.cellUnderMouse.Y), 32, 32, color.RGBA{A: 0x30}, false)
+
+	vector.DrawFilledRect(screen, float32(g.cellUnderMouse.X), float32(g.cellUnderMouse.Y), 32, 32, g.cellUnderMouseColor, false)
+
 	for x, row := range g.board {
 		for y, piece := range row {
 			if piece != nil {
@@ -67,19 +79,39 @@ func (g *game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, scr
 
 // Update implements ebiten.Game.
 func (g *game) Update() error {
+	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+		return io.EOF
+	}
 	x, y := ebiten.CursorPosition()
 	cellX := max(0, min((x-16)/32, 7))
 	cellY := max(0, min((y-16)/32, 7))
 
 	xcoord, ycoord := 16+(cellX*32), (cellY*32)+16
 	g.cellUnderMouse = image.Pt(xcoord, ycoord)
+	g.cellUnderMouseColor = color.RGBA{A: 0x30}
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		g.dragged = g.board.PieceAt(cellX, cellY)
 		g.selectStart = image.Pt(cellX, cellY)
 	} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		g.dragged = nil
-		g.board.Move(g.selectStart.X, g.selectStart.Y, cellX, cellY)
+		moveState := g.board.Move(g.selectStart.X, g.selectStart.Y, cellX, cellY)
+		if g.board.PieceAt(g.selectStart.X, g.selectStart.Y) != nil && moveState == Still {
+			g.cellUnderMouseColor = color.RGBA{R: 0xFF, A: 0x30}
+		}
+
+		// play the sound
+		switch moveState {
+		case Took:
+			g.takeSound.SetPosition(0)
+			g.takeSound.Play()
+		case Moved:
+			g.moveSound.SetPosition(time.Millisecond * 33)
+			g.moveSound.Play()
+		case Still:
+		default:
+			panic(fmt.Sprintf("unexpected main.State: %#v", moveState))
+		}
 	}
 	return nil
 }
@@ -90,9 +122,34 @@ func main() {
 		panic(err)
 	}
 
+	audioCtx := audio.NewContext(24000)
+	f, err := os.Open("./assets/audio/clank-2.raw")
+	if err != nil {
+		panic(err)
+	}
+
+	moveSound, err := audioCtx.NewPlayer(f)
+	if err != nil {
+		panic(err)
+	}
+	defer moveSound.Close()
+
+	f, err = os.Open("./assets/audio/take.raw")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	takeSound, err := audioCtx.NewPlayer(f)
+	if err != nil {
+		panic(err)
+	}
+	defer moveSound.Close()
 	ebiten.SetWindowTitle("Chess")
 	if err := ebiten.RunGameWithOptions(&game{
 		boardSprite: boardSprite,
+		audioCtx:    audioCtx,
+		moveSound:   moveSound,
+		takeSound:   takeSound,
 		board: Board{
 			{&whiteRook, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackRook},
 			{&whiteKnight, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKnight},
