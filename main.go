@@ -86,8 +86,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if err := ebiten.RunGame(&game{
+
+	ebiten.SetWindowTitle("Chess")
+	if err := ebiten.RunGameWithOptions(&game{
 		boardSprite: boardSprite,
+	}, &ebiten.RunGameOptions{
+		X11ClassName:    "chess",
+		X11InstanceName: "Chess",
 	}); err != nil {
 		panic(err)
 	}
