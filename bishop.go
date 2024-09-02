@@ -18,7 +18,7 @@ func isValidBishopMove(b Piece, board *Board, x1, y1, x2, y2 int) bool {
 
 	xs := sign(float64(dx))
 	ys := sign(float64(dy))
-	for change := 1; change < int(math.Abs(float64(dx)))+1; change++ {
+	for change := 1; change < int(math.Abs(float64(dx))); change++ {
 		piece := board.PieceAt(x1+(xs*change), y1+(ys*change))
 		if piece != nil {
 			return false
