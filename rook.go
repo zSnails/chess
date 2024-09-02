@@ -1,11 +1,26 @@
 package main
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"math"
 )
 
 type Rook struct {
-	side Side
+	side   Side
+	sprite *ebiten.Image
+}
+
+func NewRook(side Side) Rook {
+	img := getSprite(side, "Rook")
+	return Rook{
+		side:   side,
+		sprite: img,
+	}
+}
+
+// Sprite implements Piece.
+func (r *Rook) Sprite() *ebiten.Image {
+	return r.sprite
 }
 
 func sign(val float64) int {

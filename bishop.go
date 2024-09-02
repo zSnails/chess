@@ -1,11 +1,26 @@
 package main
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"math"
 )
 
 type Bishop struct {
-	side Side
+	side   Side
+	sprite *ebiten.Image
+}
+
+func NewBishop(side Side) Bishop {
+	img := getSprite(side, "Bishop")
+	return Bishop{
+		side:   side,
+		sprite: img,
+	}
+}
+
+// Sprite implements Piece.
+func (b *Bishop) Sprite() *ebiten.Image {
+	return b.sprite
 }
 
 func isValidBishopMove(b Piece, board *Board, x1, y1, x2, y2 int) bool {

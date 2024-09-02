@@ -1,9 +1,26 @@
 package main
 
-import "math"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"math"
+)
 
 type King struct {
-	side Side
+	side   Side
+	sprite *ebiten.Image
+}
+
+func NewKing(side Side) King {
+	img := getSprite(side, "King")
+	return King{
+		side:   side,
+		sprite: img,
+	}
+}
+
+// Sprite implements Piece.
+func (k *King) Sprite() *ebiten.Image {
+	return k.sprite
 }
 
 // IsValidMove implements Piece.

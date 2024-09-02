@@ -1,7 +1,25 @@
 package main
 
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+)
+
 type Queen struct {
-	side Side
+	side   Side
+	sprite *ebiten.Image
+}
+
+func NewQueen(side Side) Queen {
+	img := getSprite(side, "Queen")
+	return Queen{
+		side:   side,
+		sprite: img,
+	}
+}
+
+// Sprite implements Piece.
+func (q *Queen) Sprite() *ebiten.Image {
+	return q.sprite
 }
 
 // IsValidMove implements Piece.

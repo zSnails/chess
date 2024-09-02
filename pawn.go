@@ -1,7 +1,37 @@
 package main
 
+import (
+	"fmt"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+)
+
+func getSprite(side Side, name string) *ebiten.Image {
+	img, _, err := ebitenutil.NewImageFromFile(fmt.Sprintf("./assets/Classic/Pieces/%s/%s.png", side, name))
+	if err != nil {
+		panic(err)
+	}
+	return img
+}
+
 type Pawn struct {
-	side Side
+	side   Side
+	sprite *ebiten.Image
+}
+
+// TODO: fix this POS
+func NewPawn(side Side) Pawn {
+	img := getSprite(side, "Pawn")
+	return Pawn{
+		side:   side,
+		sprite: img,
+	}
+}
+
+// Sprite implements Piece.
+func (p *Pawn) Sprite() *ebiten.Image {
+	return p.sprite
 }
 
 // Side implements Piece.
