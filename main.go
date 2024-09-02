@@ -71,7 +71,7 @@ func (g *game) Update() error {
 	cellY := max(0, min((y-16)/32, 7))
 
 	xcoord, ycoord := 16+(cellX*32), (cellY*32)+16
-	g.currentCell = image.Pt(xcoord, ycoord)
+	g.cellUnderMouse = image.Pt(xcoord, ycoord)
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		g.selectStart = image.Pt(cellX, cellY)
