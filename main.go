@@ -1,27 +1,24 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
-type Color uint8
+type Side uint8
 
 const (
-	None Color = iota
-	White
-	Black
+	NONE Side = iota
+	WHITE
+	BLACK
 )
 
 type Piece interface {
 	IsValidMove(board *Board, x1, y1, x2, y2 int) bool
-	CanTake(other Piece) bool
-	Side() Color
+	Side() Side
 }
 
 type Board [8][8]Piece
 
 func (b *Board) PieceAt(x, y int) Piece {
-	if x > 7 || y > 7 {
+	if x < 0 || y < 0 || x > 7 || y > 7 {
 		panic("unreachable: invalid position")
 	}
 	return b[x][y]
@@ -33,7 +30,6 @@ func (c *Board) CanMove(x1, y1, x2, y2 int) bool {
 	}
 
 	piece := c.PieceAt(x1, y1)
-	fmt.Printf("piece: %+v\n", piece)
 	return piece != nil && piece.IsValidMove(c, x1, y1, x2, y2)
 }
 
@@ -47,26 +43,45 @@ func (c *Board) Move(x1, y1, x2, y2 int) bool {
 	return false
 }
 
-var rook = Rook{
-	side: White,
+var blackRook = Rook{
+	side: BLACK,
 }
 
-var enemy = Pawn{
-	side: Black,
+var whiteRook = Rook{
+	side: WHITE,
 }
 
-var canvas = Board{
-	{&enemy, &rook, nil, nil, nil, &rook, nil, nil},
-	{&enemy, &enemy, nil, nil, nil, nil, nil, nil},
-	{&enemy, nil, nil, nil, nil, nil, nil, nil},
-	{&enemy, nil, nil, nil, nil, nil, nil, nil},
-	{nil, nil, nil, nil, nil, nil, nil, nil},
+var pawn = Pawn{
+	side: BLACK,
+}
+
+var knight = Knight{
+	side: WHITE,
+}
+
+var bishop = Bishop{
+	side: WHITE,
+}
+
+var king = King{
+	side: WHITE,
+}
+
+var queen = Queen{
+	side: WHITE,
+}
+
+var board = Board{
+	{&knight, &pawn, nil, nil, nil, nil, nil, nil},
+	{&pawn, &pawn, &whiteRook, nil, nil, nil, nil, nil},
+	{&bishop, nil, nil, nil, nil, nil, nil, nil},
+	{nil, &pawn, nil, nil, nil, nil, nil, nil},
+	{&queen, nil, nil, nil, nil, nil, &pawn, nil},
 	{nil, nil, nil, nil, nil, nil, nil, nil},
 	{nil, nil, nil, nil, nil, nil, nil, nil},
 	{nil, nil, nil, nil, nil, nil, nil, nil},
 }
 
 func main() {
-	fmt.Printf("canvas.Move(0, 5, 2, 5): %v\n", canvas.Move(0, 5, 2, 5))
-	fmt.Printf("canvas.Move(2, 5, 2, 0): %v\n", canvas.Move(2, 5, 2, 0))
+	fmt.Printf("board.Move(0, 0, 7, 7): %v\n", board.Move(4, 0, 2, 2))
 }
