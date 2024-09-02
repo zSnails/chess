@@ -106,7 +106,7 @@ func (g *game) Update() error {
 			g.takeSound.SetPosition(0)
 			g.takeSound.Play()
 		case Moved:
-			g.moveSound.SetPosition(time.Millisecond * 33)
+			g.moveSound.SetPosition(time.Millisecond * 37)
 			g.moveSound.Play()
 		case Still:
 		default:
