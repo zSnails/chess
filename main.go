@@ -143,7 +143,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer moveSound.Close()
+	defer takeSound.Close()
+
 	ebiten.SetWindowTitle("Chess")
 	if err := ebiten.RunGameWithOptions(&game{
 		boardSprite: boardSprite,
