@@ -5,12 +5,7 @@ import (
 )
 
 type Rook struct {
-	side Color
-}
-
-// CanTake implements Piece.
-func (r *Rook) CanTake(other Piece) bool {
-	return r.Side() != other.Side()
+	side Side
 }
 
 func sign(val float64) int {
@@ -24,9 +19,7 @@ func sign(val float64) int {
 	return 1
 }
 
-// IsValidMove implements Piece.
-func (r *Rook) IsValidMove(board *Board, x1 int, y1 int, x2 int, y2 int) bool {
-
+func isValidRookMove(r Piece, board *Board, x1, y1, x2, y2 int) bool {
 	if x1 != x2 && y1 != y2 {
 		return false
 	}
@@ -49,15 +42,16 @@ func (r *Rook) IsValidMove(board *Board, x1 int, y1 int, x2 int, y2 int) bool {
 	}
 
 	other := board.PieceAt(x2, y2)
-	if other != nil {
-		return r.CanTake(other)
-	}
+	return other == nil || r.Side() != other.Side()
+}
 
-	return true
+// IsValidMove implements Piece.
+func (r *Rook) IsValidMove(board *Board, x1 int, y1 int, x2 int, y2 int) bool {
+	return isValidRookMove(r, board, x1, y1, x2, y2)
 }
 
 // Side implements Piece.
-func (r *Rook) Side() Color {
+func (r *Rook) Side() Side {
 	return r.side
 }
 
