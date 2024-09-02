@@ -62,27 +62,28 @@ func (g *game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, scr
 
 // Update implements ebiten.Game.
 func (g *game) Update() error {
+	x, y := ebiten.CursorPosition()
+	cellX := max(0, min((x-16)/32, 7))
+	cellY := max(0, min((y-16)/32, 7))
+
+	xcoord, ycoord := 16+(cellX*32), (cellY*32)+16
+	g.currentCell = image.Pt(xcoord, ycoord)
+
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		x, y := ebiten.CursorPosition()
-		cellX := (x - 16) / 32
-		cellY := (y - 16) / 32
 		g.selectStart = image.Pt(cellX, cellY)
 	} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		x, y := ebiten.CursorPosition()
-		cellX := (x - 16) / 32
-		cellY := (y - 16) / 32
 		board.Move(g.selectStart.X, g.selectStart.Y, cellX, cellY)
 	}
 	return nil
 }
 
 func main() {
-	boardImage, _, err := ebitenutil.NewImageFromFile("./assets/Classic/Board/Board - classic 1.png")
+	boardSprite, _, err := ebitenutil.NewImageFromFile("./assets/Classic/Board/Board - classic 1.png")
 	if err != nil {
 		panic(err)
 	}
 	if err := ebiten.RunGame(&game{
-		board: boardImage,
+		boardSprite: boardSprite,
 	}); err != nil {
 		panic(err)
 	}
