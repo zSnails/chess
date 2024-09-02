@@ -24,22 +24,13 @@ var whiteKing = NewKing(WHITE)
 var whiteBishop = NewBishop(WHITE)
 var whiteRook = NewRook(WHITE)
 
-var board = Board{
-	{&whiteRook, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackRook},
-	{&whiteKnight, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKnight},
-	{&whiteBishop, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackBishop},
-	{&whiteKing, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackQueen},
-	{&whiteQueen, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKing},
-	{&whiteBishop, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackBishop},
-	{&whiteKnight, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKnight},
-	{&whiteRook, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackRook},
-}
-
 type game struct {
 	boardSprite    *ebiten.Image
 	selectStart    image.Point
 	cellUnderMouse image.Point
 	dragged        Piece
+
+	board Board
 }
 
 // Draw implements ebiten.Game.
@@ -47,7 +38,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
 	screen.DrawImage(g.boardSprite, &opts)
 	vector.DrawFilledRect(screen, float32(g.cellUnderMouse.X), float32(g.cellUnderMouse.Y), 32, 32, color.RGBA{A: 0x30}, false)
-	for x, row := range board {
+	for x, row := range g.board {
 		for y, piece := range row {
 			if piece != nil {
 				opts.GeoM.Translate(float64(16+(x*32)), float64((y*32)+16))
@@ -84,11 +75,11 @@ func (g *game) Update() error {
 	g.cellUnderMouse = image.Pt(xcoord, ycoord)
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		g.dragged = board.PieceAt(cellX, cellY)
+		g.dragged = g.board.PieceAt(cellX, cellY)
 		g.selectStart = image.Pt(cellX, cellY)
 	} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		g.dragged = nil
-		board.Move(g.selectStart.X, g.selectStart.Y, cellX, cellY)
+		g.board.Move(g.selectStart.X, g.selectStart.Y, cellX, cellY)
 	}
 	return nil
 }
@@ -102,6 +93,16 @@ func main() {
 	ebiten.SetWindowTitle("Chess")
 	if err := ebiten.RunGameWithOptions(&game{
 		boardSprite: boardSprite,
+		board: Board{
+			{&whiteRook, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackRook},
+			{&whiteKnight, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKnight},
+			{&whiteBishop, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackBishop},
+			{&whiteKing, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackQueen},
+			{&whiteQueen, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKing},
+			{&whiteBishop, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackBishop},
+			{&whiteKnight, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackKnight},
+			{&whiteRook, &whitePawn, nil, nil, nil, nil, &blackPawn, &blackRook},
+		},
 	}, &ebiten.RunGameOptions{
 		X11ClassName:    "chess",
 		X11InstanceName: "Chess",
