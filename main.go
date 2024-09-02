@@ -39,6 +39,7 @@ type game struct {
 	boardSprite    *ebiten.Image
 	selectStart    image.Point
 	cellUnderMouse image.Point
+	dragged        Piece
 }
 
 // Draw implements ebiten.Game.
@@ -54,6 +55,15 @@ func (g *game) Draw(screen *ebiten.Image) {
 				opts.GeoM.Reset()
 			}
 		}
+	}
+
+	if g.dragged != nil {
+		x, y := ebiten.CursorPosition()
+		opts.GeoM.Translate(float64(x)-16, float64(y)-16)
+		opts.ColorScale.SetA(0.5)
+		screen.DrawImage(g.dragged.Sprite(), &opts)
+		opts.GeoM.Reset()
+		opts.ColorScale.Reset()
 	}
 
 }
@@ -74,8 +84,10 @@ func (g *game) Update() error {
 	g.cellUnderMouse = image.Pt(xcoord, ycoord)
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		g.dragged = board.PieceAt(cellX, cellY)
 		g.selectStart = image.Pt(cellX, cellY)
 	} else if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		g.dragged = nil
 		board.Move(g.selectStart.X, g.selectStart.Y, cellX, cellY)
 	}
 	return nil
