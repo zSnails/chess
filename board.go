@@ -45,12 +45,24 @@ func (c *Board) CanMove(x1, y1, x2, y2 int) bool {
 	return piece != nil && piece.IsValidMove(c, x1, y1, x2, y2)
 }
 
-func (c *Board) Move(x1, y1, x2, y2 int) bool {
+type State uint8
+
+const (
+	Still State = iota
+	Moved
+	Took
+)
+
+func (c *Board) Move(x1, y1, x2, y2 int) State {
 	if c.CanMove(x1, y1, x2, y2) {
+		state := Moved
+		if c.PieceAt(x2, y2) != nil {
+			state = Took
+		}
 		c[x2][y2] = c[x1][y1]
 		c[x1][y1] = nil
-		return true
+		return state
 	}
 
-	return false
+	return Still
 }
