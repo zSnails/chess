@@ -2,10 +2,12 @@ package main
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 var blackKnight = NewKnight(BLACK)
@@ -53,6 +55,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 			}
 		}
 	}
+
 }
 
 // Layout implements ebiten.Game.
