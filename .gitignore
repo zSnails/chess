@@ -1,2 +1,4 @@
 chess
 assets/**/
+.env
+dist/
