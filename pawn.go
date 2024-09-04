@@ -8,7 +8,7 @@ import (
 )
 
 func getSprite(side Side, name string) *ebiten.Image {
-	img, _, err := ebitenutil.NewImageFromFile(fmt.Sprintf("./assets/Classic/Pieces/%s/%s.png", side, name))
+	img, _, err := ebitenutil.NewImageFromFileSystem(assets, fmt.Sprintf("assets/Classic/Pieces/%s/%s.png", side, name))
 	if err != nil {
 		panic(err)
 	}
@@ -20,7 +20,6 @@ type Pawn struct {
 	sprite *ebiten.Image
 }
 
-// TODO: fix this POS
 func NewPawn(side Side) Pawn {
 	img := getSprite(side, "Pawn")
 	return Pawn{

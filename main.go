@@ -1,12 +1,12 @@
 package main
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"io"
-	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -16,19 +16,24 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-var blackKnight = NewKnight(BLACK)
-var blackPawn = NewPawn(BLACK)
-var blackQueen = NewQueen(BLACK)
-var blackKing = NewKing(BLACK)
-var blackBishop = NewBishop(BLACK)
-var blackRook = NewRook(BLACK)
+//go:embed all:assets
+var assets embed.FS
 
-var whiteKnight = NewKnight(WHITE)
-var whitePawn = NewPawn(WHITE)
-var whiteQueen = NewQueen(WHITE)
-var whiteKing = NewKing(WHITE)
-var whiteBishop = NewBishop(WHITE)
-var whiteRook = NewRook(WHITE)
+var (
+	blackKnight = NewKnight(BLACK)
+	blackPawn   = NewPawn(BLACK)
+	blackQueen  = NewQueen(BLACK)
+	blackKing   = NewKing(BLACK)
+	blackBishop = NewBishop(BLACK)
+	blackRook   = NewRook(BLACK)
+
+	whiteKnight = NewKnight(WHITE)
+	whitePawn   = NewPawn(WHITE)
+	whiteQueen  = NewQueen(WHITE)
+	whiteKing   = NewKing(WHITE)
+	whiteBishop = NewBishop(WHITE)
+	whiteRook   = NewRook(WHITE)
+)
 
 type game struct {
 	boardSprite         *ebiten.Image
@@ -117,13 +122,13 @@ func (g *game) Update() error {
 }
 
 func main() {
-	boardSprite, _, err := ebitenutil.NewImageFromFile("./assets/Classic/Board/Board - classic 1.png")
+	boardSprite, _, err := ebitenutil.NewImageFromFileSystem(assets, "assets/Classic/Board/Board - classic 1.png")
 	if err != nil {
 		panic(err)
 	}
 
 	audioCtx := audio.NewContext(24000)
-	f, err := os.Open("./assets/audio/clank-2.raw")
+	f, err := assets.Open("assets/audio/clank-2.raw")
 	if err != nil {
 		panic(err)
 	}
@@ -134,7 +139,7 @@ func main() {
 	}
 	defer moveSound.Close()
 
-	f, err = os.Open("./assets/audio/take.raw")
+	f, err = assets.Open("assets/audio/take.raw")
 	if err != nil {
 		panic(err)
 	}
